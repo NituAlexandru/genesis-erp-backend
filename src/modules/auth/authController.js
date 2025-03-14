@@ -42,8 +42,31 @@ export const login = async (req, res) => {
       { expiresIn: "1h" }
     );
 
+    // Setăm tokenul într-un cookie HTTP-only
     res.cookie("token", token, { httpOnly: true });
     res.json({ token, role: user.role });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Eroare server" });
+  }
+};
+// getMe - Verifică cookie-ul și returnează datele userului
+export const getMe = async (req, res) => {
+  try {
+    // Cookie-ul se numește 'token', setat în res.cookie("token", ...)
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ msg: "Not authenticated" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    // Returnăm obiectul user (fără parolă)
+    res.json(user);
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Eroare server" });
