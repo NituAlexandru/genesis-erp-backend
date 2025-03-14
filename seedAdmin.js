@@ -6,22 +6,24 @@ import bcrypt from "bcryptjs";
 const seedAdmin = async () => {
   await connectDB();
 
-  const username = "seedAdministrator";
+  const username = "Administrator";
   const existingUser = await User.findOne({ username });
 
   if (existingUser) {
-    console.log("Seed administrator already exists.");
+    console.log("Administrator already exists.");
   } else {
-    const hashedPassword = await bcrypt.hash("Parola", 10); // schimbă cu o parolă puternică
+    const defaultPassword = "admin1234"; // parola de start ușoară
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
     const adminUser = new User({
       username: "Administrator",
       name: "Administrator",
-      email: "seedadmin@example.com", 
+      email: "seedadmin@example.com", // poți schimba dacă dorești
       password: hashedPassword,
       role: "Administrator",
     });
     await adminUser.save();
-    console.log("Seed administrator created successfully!");
+    console.log("Administrator created successfully!");
+    console.log("Default password is:", defaultPassword);
   }
   process.exit();
 };

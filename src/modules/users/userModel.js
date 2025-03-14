@@ -6,14 +6,11 @@ const userSchema = new mongoose.Schema(
     name: { type: String, required: true },
     email: { type: String }, // Optional
     password: { type: String, required: true },
-    role: {
-      type: String,
-      enum: ["Administrator", "Admin", "Agent Vânzări", "Șofer", "Manipulator Depozit"],
-      default: "Agent Vânzări",
-    },
+    role: { type: mongoose.Schema.Types.ObjectId, ref: "Role", required: true },
   },
   { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema);
+
 export default User;
