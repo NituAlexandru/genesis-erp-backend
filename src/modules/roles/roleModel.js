@@ -2,17 +2,12 @@ import mongoose from "mongoose";
 
 const roleSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, unique: true }, // ex.: "Administrator", "Admin", "Agent Vânzări", etc.
-    permissions: {
-      type: [String],
-      default: [],
-      // ex.: ["create_user", "delete_user", "view_reports"]
-    },
+    name: { type: String, required: true, unique: true },
+    permissions: { type: [String], default: [] },
     description: { type: String },
   },
   { timestamps: true }
 );
 
 const Role = mongoose.model("Role", roleSchema);
-
 export default Role;

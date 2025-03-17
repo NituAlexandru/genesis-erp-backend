@@ -30,7 +30,10 @@ export const login = async (req, res) => {
     const { username, password } = req.body;
 
     // Populăm câmpul "role" pentru a obține detaliile din documentul Role
-    let user = await User.findOne({ username }).populate("role", "name");
+    let user = await User.findOne({ username }).populate(
+      "role",
+      "name permissions"
+    );
     if (!user)
       return res.status(400).json({ msg: "Utilizator sau parolă incorectă" });
 
@@ -44,6 +47,7 @@ export const login = async (req, res) => {
         userId: user._id,
         username: user.username,
         role: user.role ? user.role.name : null,
+        permissions: user.role ? user.role.permissions : [],
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
@@ -55,7 +59,11 @@ export const login = async (req, res) => {
       sameSite: "lax", // Ajustează pentru producție
       secure: false, // Pe localhost
     });
-    res.json({ token, role: user.role ? user.role.name : null });
+    res.json({
+      token,
+      role: user.role ? user.role.name : null,
+      permissions: user.role ? user.role.permissions : [],
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Eroare server" });
@@ -71,11 +79,11 @@ export const getMe = async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // Returnăm datele userului din token, inclusiv rolul
     res.json({
+      userId: decoded.userId,
       username: decoded.username,
       role: decoded.role,
-      userId: decoded.userId,
+      permissions: decoded.permissions || [],
     });
   } catch (error) {
     console.error(error);
