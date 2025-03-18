@@ -11,7 +11,7 @@ export const createUser = async (req, res) => {
     if (user)
       return res.status(400).json({ msg: "Numele de utilizator există deja" });
 
-    // Dacă role nu este furnizat, se folosește rolul implicit "Agent Vanzari"
+    // Dacă role nu este furnizat, se folosește rolul implicit "Agent Vânzări"
     const roleDoc = role
       ? await Role.findOne({ name: role })
       : await Role.findOne({ name: "Agent Vânzări" });
@@ -39,7 +39,7 @@ export const createUser = async (req, res) => {
   }
 };
 
-// Get User by ID
+// Endpoint pentru obținerea unui utilizator după ID
 export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -53,11 +53,28 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// Update User (ex: pentru actualizarea datelor de profil; nu se permite schimbarea username-ului)
+// Nou: Endpoint pentru obținerea unui utilizator după username
+export const getUserByUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username }).populate(
+      "role",
+      "name permissions"
+    );
+    if (!user)
+      return res.status(404).json({ msg: "Utilizatorul nu a fost găsit" });
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Eroare server" });
+  }
+};
+
+// Endpoint pentru actualizarea unui utilizator (nu se permite schimbarea username-ului)
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     // Căutăm utilizatorul
     let user = await User.findById(id);
@@ -70,6 +87,19 @@ export const updateUser = async (req, res) => {
     if (password) {
       user.password = await bcrypt.hash(password, 10);
     }
+    if (role) {
+      // Căutăm documentul rolului după nume
+      const roleDoc = await Role.findOne({ name: role });
+      if (!roleDoc)
+        return res.status(400).json({ msg: "Rolul specificat nu există" });
+
+      // Verificăm dacă utilizatorul are deja acel rol
+      if (roleDoc._id.toString() === user.role.toString()) {
+        return res.status(400).json({ msg: "Utilizatorul are deja acest rol" });
+      }
+
+      user.role = roleDoc._id;
+    }
     await user.save();
     res.json({ msg: "Utilizator actualizat cu succes" });
   } catch (error) {
@@ -78,7 +108,7 @@ export const updateUser = async (req, res) => {
   }
 };
 
-// Delete User
+// Endpoint pentru ștergerea unui utilizator
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
