@@ -30,7 +30,9 @@ export const createUser = async (req, res) => {
     });
     await user.save();
 
-    res.status(201).json({ msg: "Utilizator creat cu succes" });
+    res
+      .status(201)
+      .json({ msg: `Utilizatorul ${username} a fost creat cu succes` });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Eroare server" });
@@ -42,7 +44,8 @@ export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id).populate("role", "name permissions");
-    if (!user) return res.status(404).json({ msg: "Utilizatorul nu a fost găsit" });
+    if (!user)
+      return res.status(404).json({ msg: "Utilizatorul nu a fost găsit" });
     res.json(user);
   } catch (error) {
     console.error(error);
@@ -58,7 +61,8 @@ export const updateUser = async (req, res) => {
 
     // Căutăm utilizatorul
     let user = await User.findById(id);
-    if (!user) return res.status(404).json({ msg: "Utilizatorul nu a fost găsit" });
+    if (!user)
+      return res.status(404).json({ msg: "Utilizatorul nu a fost găsit" });
 
     // Actualizăm câmpurile permise
     user.name = name || user.name;
@@ -79,7 +83,8 @@ export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findByIdAndDelete(id);
-    if (!user) return res.status(404).json({ msg: "Utilizatorul nu a fost găsit" });
+    if (!user)
+      return res.status(404).json({ msg: "Utilizatorul nu a fost găsit" });
     res.json({ msg: "Utilizator șters cu succes" });
   } catch (error) {
     console.error(error);
