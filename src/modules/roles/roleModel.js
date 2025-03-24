@@ -9,5 +9,9 @@ const roleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Index pentru căutări rapide de roluri după nume
+roleSchema.index({ name: 1 }, { unique: true });
+
 const Role = mongoose.model("Role", roleSchema);
+
 export default Role;

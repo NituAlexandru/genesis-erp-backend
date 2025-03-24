@@ -39,6 +39,7 @@ const clientSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    // Referințe spre alte documente
     orders: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -63,9 +64,21 @@ const clientSchema = new mongoose.Schema(
         ref: "Delivery",
       },
     ],
+    // câmpuri denormalizate pentru scalabilitate
+    totalOrders: { type: Number, default: 0 },
+    totalSales: { type: Number, default: 0 },
+    totalDeliveries: { type: Number, default: 0 },
+    totalProfit: { type: Number, default: 0 },
+    totalCosts: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
+
+// INDEXARE: se pot crea indexuri pe câmpurile cele mai folosite la căutare
+clientSchema.index({ cnp: 1 }, { sparse: true });
+clientSchema.index({ cui: 1 }, { sparse: true });
+clientSchema.index({ phone: 1 }, { sparse: true });
+clientSchema.index({ email: 1 }, { sparse: true });
 
 const Client = mongoose.model("Client", clientSchema);
 
