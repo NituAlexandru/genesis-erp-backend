@@ -1,81 +1,95 @@
 import mongoose from "mongoose";
 
+// Definirea schemei pentru documentul "Order" în MongoDB
 const orderSchema = new mongoose.Schema(
   {
-    // Clientul căruia îi vindem
+    // Clientul către care se face vânzarea
     client: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Client",
+      ref: "Client", // Leagă acest câmp de modelul "Client"
       required: true,
     },
-    // Cine a creat vânzarea (Agent Vanzari sau alt utilizator)
+    // Utilizatorul care a creat comanda (ex.: Agent Vânzări sau alt utilizator)
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "User", // Leagă acest câmp de modelul "User"
       required: true,
     },
-    // Produsele vândute – include și entryPrice, prețul de intrare la momentul lansării comenzii
+    // Lista produselor vândute în cadrul comenzii
     products: [
       {
+        // Referință la produsul vândut
         product: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
+          ref: "Product", // Leagă acest câmp de modelul "Product"
           required: true,
         },
+        // Cantitatea vândută a produsului
         quantity: { type: Number, required: true },
-        unitPrice: { type: Number, required: true }, // Prețul de vânzare la momentul comenzii
-        unitMeasure: { type: String, required: true }, // ex. "buc", "kg", "palet"
-        entryPrice: { type: Number, default: null }, // Prețul de intrare al produsului, opțional
+        // Prețul de vânzare la momentul comenzii
+        unitPrice: { type: Number, required: true },
+        // Unitatea de măsură pentru produs (ex.: "buc", "kg", "palet")
+        unitMeasure: { type: String, required: true },
+        // Prețul de intrare (achiziție) al produsului la momentul lansării comenzii, opțional
+        entryPrice: { type: Number, default: null },
       },
     ],
-    // Data comenzii: stochează data exactă cu oră, minut, sec.
+    // Data și ora exactă a comenzii; implicit se setează data curentă
     orderDate: {
       type: Date,
       default: Date.now,
     },
-    // Numărul comenzii: formatul poate fi "zz/ll/aa" urmat de un număr secvențial (ex. zz/ll/aa01)
+    // Numărul unic al comenzii; formatul poate include un șablon specific, ex. "zz/ll/aa01"
     orderNumber: {
       type: String,
       required: true,
-      unique: true,
+      unique: true, // Fiecare număr de comandă trebuie să fie unic
     },
-    // Statusul comenzii
+    // Statusul comenzii, cu posibilități predefinite: "Lansata", "In pregatire", "Incarcata", "Confirmata", "Livrata"
     status: {
       type: String,
       default: "Lansata",
       enum: ["Lansata", "In pregatire", "Incarcata", "Confirmata", "Livrata"],
     },
-    // Adresa de livrare (opțional)
+    // Adresa de livrare a comenzii (opțional)
     deliveryAddress: {
       type: String,
       required: false,
     },
-    // Data livrării (poate fi setată sau modificată de utilizator)
+    // Data la care se așteaptă livrarea comenzii (poate fi setată sau modificată ulterior)
     deliveryDate: {
       type: Date,
       required: false,
     },
-    // Comentarii suplimentare pentru comandă
+    // Comentarii suplimentare legate de comandă (opțional)
     comments: {
       type: String,
       required: false,
     },
-    // Denormalizare: stochează valoarea totală și profitul calculat pentru comandă,
-    // astfel încât să nu fie nevoie de calcule complexe la fiecare interogare.
+    // Denormalizare: valoarea totală a comenzii pentru a evita calcule complexe la fiecare interogare
     totalValue: { type: Number, default: 0 },
+    // Denormalizare: profitul total calculat pentru comandă
     totalProfit: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true } // Adaugă automat câmpurile "createdAt" și "updatedAt"
 );
 
-// Indexuri pentru performanță în interogări
+// Crearea indexurilor pentru a îmbunătăți performanța interogărilor:
+// Index pe orderNumber pentru căutări rapide după numărul comenzii, asigurând unicitatea
 orderSchema.index({ orderNumber: 1 }, { unique: true });
+// Index pe client pentru a facilita căutările după client
 orderSchema.index({ client: 1 });
+// Index pe createdBy pentru căutări rapide după utilizatorul care a creat comanda
 orderSchema.index({ createdBy: 1 });
+// Index pe orderDate pentru a interoga rapid comenzile pe intervale de timp
 orderSchema.index({ orderDate: 1 });
+// Index pe status pentru filtrări rapide în funcție de starea comenzii
 orderSchema.index({ status: 1 });
+// Index pe deliveryDate pentru a facilita căutările pe baza datei de livrare
 orderSchema.index({ deliveryDate: 1 });
 
+// Crearea modelului "Order" folosind schema definită
 const Order = mongoose.model("Order", orderSchema);
 
+// Exportarea modelului pentru a putea fi utilizat în alte module ale aplicației
 export default Order;
