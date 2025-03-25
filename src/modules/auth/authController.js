@@ -70,6 +70,22 @@ export const login = async (req, res) => {
   }
 };
 
+// logout
+
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // setează true în producție
+      sameSite: "lax",
+    });
+    res.json({ msg: "Logout successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Logout failed" });
+  }
+};
+
 // getMe - Verifică cookie-ul și returnează datele userului din token
 export const getMe = async (req, res) => {
   try {
