@@ -50,7 +50,7 @@ export const login = async (req, res) => {
         permissions: user.role ? user.role.permissions : [],
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "10h" }
     );
 
     // Setăm tokenul într-un cookie HTTP-only
