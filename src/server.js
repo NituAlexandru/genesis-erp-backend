@@ -7,6 +7,10 @@ import authRoutes from "./modules/auth/authRoutes.js";
 import roleRoutes from "./modules/roles/roleRoutes.js";
 import userRoutes from "./modules/users/userRoutes.js";
 import clientRoutes from "./modules/clients/clientRoutes.js";
+import productRoutes from "./modules/products/productRoutes.js";
+import categoryRoutes from "./modules/categories/categoryRoutes.js";
+
+
 
 dotenv.config();
 connectDB();
@@ -23,6 +27,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/clients", clientRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
