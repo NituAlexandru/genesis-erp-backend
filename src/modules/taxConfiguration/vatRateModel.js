@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-const taxSchema = new mongoose.Schema({
-  vatRate: { type: Number, required: true },
+const vatRateSchema = new mongoose.Schema({
+  vatRate: { type: Number, required: true }, // stocăm valoarea TVA ca fracție (ex. 0.19 pentru 19%)
 });
 
-const TaxConfiguration = mongoose.model("TaxConfiguration", taxSchema);
-export default TaxConfiguration;
+const VatRate = mongoose.model("VatRate", vatRateSchema);
+export default VatRate;

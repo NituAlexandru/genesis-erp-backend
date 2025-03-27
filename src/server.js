@@ -10,6 +10,8 @@ import clientRoutes from "./modules/clients/clientRoutes.js";
 import productRoutes from "./modules/products/productRoutes.js";
 import categoryRoutes from "./modules/categories/categoryRoutes.js";
 import supplierRoutes from "./modules/suppliers/supplierRoutes.js";
+import markupRoutes from "./modules/markup/markupRoutes.js";
+import vatRateRoutes from "./modules/taxConfiguration/vatRateRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -29,6 +31,8 @@ app.use("/api/clients", clientRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/suppliers", supplierRoutes);
+app.use("/api/markups", markupRoutes);
+app.use("/api/vat-rate", vatRateRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

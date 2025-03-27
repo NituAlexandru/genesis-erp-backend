@@ -21,6 +21,7 @@ const productPriceHistorySchema = new mongoose.Schema(
       required: true,
       enum: ["entry", "exit"],
     },
+    quantity: { type: Number, required: true },
     // Data la care a fost înregistrat prețul
     date: {
       type: Date,
