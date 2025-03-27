@@ -1,11 +1,10 @@
 import Product from "../products/productModel.js";
+import MarkupHistory from "./markupHistoryModel.js";
 
 export async function updateProductMarkups(req, res) {
   try {
-    // Așteptăm ca request-ul să conțină: { productId, defaultMarkups }
     const { productId, defaultMarkups } = req.body;
 
-    // Actualizează produsul folosind _id-ul
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
       { $set: { defaultMarkups } },
@@ -15,6 +14,13 @@ export async function updateProductMarkups(req, res) {
     if (!updatedProduct) {
       return res.status(404).json({ msg: "Product not found" });
     }
+
+    // Salvează istoric markup
+    await MarkupHistory.create({
+      product: productId,
+      defaultMarkups,
+    });
+
     return res.json(updatedProduct);
   } catch (error) {
     console.error(error);
