@@ -19,9 +19,10 @@ const productSchema = new mongoose.Schema(
       ref: "Supplier",
       required: false,
     },
-    price: {
-      type: Number,
-      required: false,
+    salesPrice: {
+      price1: { type: Number, default: 0 },
+      price2: { type: Number, default: 0 },
+      price3: { type: Number, default: 0 },
     },
     // stoc minim + stoc actual (pentru notifica daca e sub un prag)
     minStock: { type: Number, default: 0 },
@@ -43,7 +44,7 @@ const productSchema = new mongoose.Schema(
       markup2: { type: Number, default: 0 },
       markup3: { type: Number, default: 0 },
     },
-    // Markup personalizat per client 
+    // Markup personalizat per client
     clientMarkups: [
       {
         clientId: { type: mongoose.Schema.Types.ObjectId, ref: "Client" },
