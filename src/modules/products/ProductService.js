@@ -1,43 +1,73 @@
 import Product from "./productModel.js";
 import ProductPriceHistory from "./productPriceHistoryModel.js";
-import Supplier from "../suppliers/supplierModel.js";
+import Category from "../categories/categoryModel.js"; // Importăm modelul Category
+
 // Creează un produs nou
 export async function createProduct(productData) {
-  // Dacă se specifică o categorie, verifică dacă există în colecția de categorii
-  if (productData.category) {
-    let category = await Category.findOne({ name: productData.category });
-    if (!category) {
-      category = await Category.create({ name: productData.category });
+  if (productData.mainSupplier) {
+    if (mongoose.Types.ObjectId.isValid(productData.mainSupplier)) {
+      // e deja un ID valid
+    } else {
+      // e un string => caut în DB după name
+      const foundSupplier = await Supplier.findOne({
+        name: productData.mainSupplier,
+      });
+      if (foundSupplier) {
+        productData.mainSupplier = foundSupplier._id;
+      } else {
+        productData.mainSupplier = null; // sau creezi un supplier nou, după preferințe
+      }
     }
-    // Poți salva doar numele categoriei sau o referință, în funcție de designul tău
-    productData.category = category.name;
   }
 
+  if (productData.category) {
+    if (mongoose.Types.ObjectId.isValid(productData.category)) {
+      // e deja un ID valid
+    } else {
+      // e un string => căutăm categorie după name
+      let foundCategory = await Category.findOne({
+        name: productData.category,
+      });
+      if (!foundCategory) {
+        foundCategory = await Category.create({ name: productData.category });
+      }
+      productData.category = foundCategory._id;
+    }
+  }
+
+  // Creăm produsul
   const product = new Product(productData);
   const savedProduct = await product.save();
 
-  // Dacă are preț, salvăm în istoricul de preț
-  if (savedProduct.price) {
-    await createPriceHistory(savedProduct._id, savedProduct.price, "exit");
+  // Istoric de preț, etc.
+  if (savedProduct.salesPrice && savedProduct.salesPrice.price1) {
+    await createPriceHistory(
+      savedProduct._id,
+      savedProduct.salesPrice.price1,
+      "exit"
+    );
   }
 
   return savedProduct;
 }
 
-// Obține toate produsele, cu filtrare opțională
+// Obține toate produsele, cu filtrare
 export async function getAllProducts(query) {
   const filter = {};
 
-  // Filtru inStock = "true" => currentStock > 0
+  // Adaugă eventuale filtre din query, de exemplu:
   if (query.inStock === "true") {
     filter.currentStock = { $gt: 0 };
   }
-
-  // Alte filtre (ex. preț min/max, etc.) pot fi adăugate aici
+  if (query.query) {
+    filter.name = { $regex: query.query, $options: "i" };
+  }
 
   const products = await Product.find(filter)
-    .populate("mainSupplier", "name")
+    .populate("mainSupplier", "name _id") // Populate pentru mainSupplier
+    .populate("category", "name _id") // Populate pentru category
     .sort({ createdAt: -1 });
+
   return products;
 }
 
@@ -54,8 +84,12 @@ export async function updateProduct(productId, updateData) {
     throw new Error("Product not found");
   }
 
-  const oldPrice = oldProduct.price;
-  const newPrice = updateData.price;
+  // Folosim salesPrice.price1 ca preț principal pentru istoricul de prețuri
+  const oldPrice = oldProduct.salesPrice ? oldProduct.salesPrice.price1 : 0;
+  const newPrice =
+    updateData.salesPrice && updateData.salesPrice.price1
+      ? updateData.salesPrice.price1
+      : oldPrice;
 
   const updatedProduct = await Product.findByIdAndUpdate(
     productId,
@@ -63,7 +97,7 @@ export async function updateProduct(productId, updateData) {
     { new: true }
   );
 
-  // Dacă prețul s-a modificat, salvăm noul preț în istoricul de preț
+  // Dacă prețul a fost modificat, adăugăm o nouă intrare în istoricul de prețuri
   if (newPrice && newPrice !== oldPrice) {
     await createPriceHistory(updatedProduct._id, newPrice, "exit");
   }

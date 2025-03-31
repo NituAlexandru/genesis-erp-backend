@@ -1,4 +1,6 @@
+// productRoutes.js
 import express from "express";
+import multer from "multer";
 import {
   createProductController,
   getAllProductsController,
@@ -9,19 +11,15 @@ import {
 
 const router = express.Router();
 
-// GET /api/products - obține toate produsele (cu filtre prin query)
+// multer foloseste stocare în memorie (pentru testare)
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+// Rutele de produse
 router.get("/", getAllProductsController);
-
-// POST /api/products - creează un produs nou
-router.post("/", createProductController);
-
-// GET /api/products/:id - obține produs după ID
+router.post("/", upload.array("images"), createProductController);
 router.get("/:id", getProductByIdController);
-
-// PUT /api/products/:id - actualizează produs
-router.put("/:id", updateProductController);
-
-// DELETE /api/products/:id - șterge produs
+router.put("/:id", upload.array("images"), updateProductController);
 router.delete("/:id", deleteProductController);
 
 export default router;

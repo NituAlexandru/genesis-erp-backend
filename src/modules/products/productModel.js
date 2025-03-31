@@ -19,6 +19,11 @@ const productSchema = new mongoose.Schema(
       ref: "Supplier",
       required: false,
     },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: false,
+    },
     salesPrice: {
       price1: { type: Number, default: 0 },
       price2: { type: Number, default: 0 },
@@ -36,6 +41,12 @@ const productSchema = new mongoose.Schema(
     height: { type: Number, default: 0 },
     weight: { type: Number, default: 0 },
     volume: { type: Number, default: 0 },
+    packaging: {
+      itemsPerBox: { type: Number, default: 0 },
+      boxesPerPallet: { type: Number, default: 0 },
+      itemsPerPallet: { type: Number, default: 0 },
+      maxPalletsPerTruck: { type: Number, default: 0 },
+    },
     // calcul pret mediu achizitie
     averagePurchasePrice: { type: Number, default: 0 },
     // Markup-urile implicite (ca procente, ex. 0.20 pentru 20%)
