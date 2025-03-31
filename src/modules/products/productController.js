@@ -9,18 +9,22 @@ import {
 
 export async function createProductController(req, res) {
   try {
-    // Construim obiectul productData din req.body; reține că toate valorile sunt string-uri
+    // console.log("DEBUG createProductController -> req.body:", req.body);
+    // console.log("DEBUG createProductController -> req.files:", req.files);
+
     const productData = {
       name: req.body.name,
       barCode: req.body.barCode,
       description: req.body.description,
       mainSupplier: req.body.mainSupplier,
+      category: req.body.category,
       minStock: Number(req.body.minStock) || 0,
       currentStock: Number(req.body.currentStock) || 0,
       length: Number(req.body.length) || 0,
       width: Number(req.body.width) || 0,
       height: Number(req.body.height) || 0,
       weight: Number(req.body.weight) || 0,
+      averagePurchasePrice: Number(req.body.averagePurchasePrice) || 0,
       packaging: {
         itemsPerBox: Number(req.body["packaging.itemsPerBox"]) || 0,
         boxesPerPallet: Number(req.body["packaging.boxesPerPallet"]) || 0,
@@ -30,12 +34,11 @@ export async function createProductController(req, res) {
       },
     };
 
-    // Gestionează imaginile: dacă nu există fișiere încărcate, setează un placeholder (sau lasă câmpul gol)
+    // Gestionează imaginile (placeholder)
     if (req.files && req.files.length > 0) {
-      // În viitor, aici poți procesa și stoca fișierele (ex. pe S3, local etc.)
       productData.image = "https://via.placeholder.com/150";
     } else {
-      productData.image = ""; // sau poți seta un URL de placeholder default
+      productData.image = "";
     }
 
     const newProduct = await createProduct(productData);
