@@ -93,20 +93,17 @@ export async function createProduct(productData) {
 
 // Obține toate produsele, cu filtrare
 export async function getAllProducts(query) {
-  const filter = {};
-
+  const filter = { isActive: true };
   if (query.inStock === "true") {
     filter.currentStock = { $gt: 0 };
   }
   if (query.query) {
     filter.name = { $regex: query.query, $options: "i" };
   }
-
   const products = await Product.find(filter)
     .populate("mainSupplier", "name _id")
     .populate("category", "name _id")
     .sort({ createdAt: -1 });
-
   return products;
 }
 
@@ -136,16 +133,8 @@ export async function updateProduct(productId, updateData) {
   if (newPrice && newPrice !== oldPrice) {
     await createPriceHistory(updatedProduct._id, newPrice, "exit", 1);
   }
-
   return updatedProduct;
 }
-
-// Șterge un produs
-export async function deleteProduct(productId) {
-  const deleted = await Product.findByIdAndDelete(productId);
-  return deleted;
-}
-
 // Creează o intrare în istoricul de preț
 async function createPriceHistory(productId, price, priceType, quantity) {
   // console.log(
@@ -164,4 +153,19 @@ async function createPriceHistory(productId, price, priceType, quantity) {
     priceType,
     quantity,
   });
+}
+// Șterge un produs
+export async function deleteProduct(productId) {
+  const deleted = await Product.findByIdAndDelete(productId);
+  return deleted;
+}
+
+// Funcție de soft delete – setează câmpul isActive la false
+export async function softDeleteProduct(productId) {
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw new Error("Product not found");
+  }
+  product.isActive = false;
+  return await product.save();
 }

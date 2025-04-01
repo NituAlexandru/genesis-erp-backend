@@ -7,6 +7,7 @@ import {
   getProductByIdController,
   updateProductController,
   deleteProductController,
+  softDeleteProductController,
 } from "./productController.js";
 
 const router = express.Router();
@@ -21,5 +22,6 @@ router.post("/", upload.array("images"), createProductController);
 router.get("/:id", getProductByIdController);
 router.put("/:id", upload.array("images"), updateProductController);
 router.delete("/:id", deleteProductController);
+router.patch("/:id/soft-delete", softDeleteProductController);
 
 export default router;

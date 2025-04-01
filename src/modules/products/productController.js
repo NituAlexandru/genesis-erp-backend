@@ -5,6 +5,7 @@ import {
   getProductById,
   updateProduct,
   deleteProduct,
+  softDeleteProduct,
 } from "./productService.js";
 
 export async function createProductController(req, res) {
@@ -79,6 +80,7 @@ export async function updateProductController(req, res) {
       barCode: req.body.barCode,
       description: req.body.description,
       mainSupplier: req.body.mainSupplier,
+      category: req.body.category,
       salesPrice: {
         price1: Number(req.body["salesPrice.price1"]) || 0,
         price2: Number(req.body["salesPrice.price2"]) || 0,
@@ -125,6 +127,19 @@ export async function deleteProductController(req, res) {
       return res.status(404).json({ msg: "Product not found" });
     }
     return res.json(deleted);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: error.message });
+  }
+}
+
+export async function softDeleteProductController(req, res) {
+  try {
+    const product = await softDeleteProduct(req.params.id);
+    if (!product) {
+      return res.status(404).json({ msg: "Product not found or not updated" });
+    }
+    return res.json(product);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ msg: error.message });
