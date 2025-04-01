@@ -1,4 +1,3 @@
-// productController.js
 import {
   createProduct,
   getAllProducts,
@@ -7,6 +6,7 @@ import {
   deleteProduct,
   softDeleteProduct,
 } from "./productService.js";
+import Product from "./productModel.js";
 
 export async function createProductController(req, res) {
   try {
@@ -75,41 +75,92 @@ export async function getProductByIdController(req, res) {
 
 export async function updateProductController(req, res) {
   try {
+    const oldProduct = await Product.findById(req.params.id);
+    if (!oldProduct) {
+      return res.status(404).json({ msg: "Product not found" });
+    }
+
     const productData = {
-      name: req.body.name,
-      barCode: req.body.barCode,
-      description: req.body.description,
-      mainSupplier: req.body.mainSupplier,
-      category: req.body.category,
+      name: req.body.name || oldProduct.name,
+      barCode: req.body.barCode || oldProduct.barCode,
+      description: req.body.description || oldProduct.description,
+      mainSupplier: req.body.mainSupplier || oldProduct.mainSupplier,
+      category: req.body.category || oldProduct.category,
       salesPrice: {
-        price1: Number(req.body["salesPrice.price1"]) || 0,
-        price2: Number(req.body["salesPrice.price2"]) || 0,
-        price3: Number(req.body["salesPrice.price3"]) || 0,
+        price1:
+          req.body["salesPrice.price1"] !== undefined
+            ? Number(req.body["salesPrice.price1"])
+            : oldProduct.salesPrice.price1,
+        price2:
+          req.body["salesPrice.price2"] !== undefined
+            ? Number(req.body["salesPrice.price2"])
+            : oldProduct.salesPrice.price2,
+        price3:
+          req.body["salesPrice.price3"] !== undefined
+            ? Number(req.body["salesPrice.price3"])
+            : oldProduct.salesPrice.price3,
       },
-      minStock: Number(req.body.minStock) || 0,
-      currentStock: Number(req.body.currentStock) || 0,
-      firstOrderDate: req.body.firstOrderDate,
-      lastOrderDate: req.body.lastOrderDate,
-      length: Number(req.body.length) || 0,
-      width: Number(req.body.width) || 0,
-      height: Number(req.body.height) || 0,
-      weight: Number(req.body.weight) || 0,
-      volume: Number(req.body.volume) || 0,
-      averagePurchasePrice: Number(req.body.averagePurchasePrice) || 0,
+      minStock:
+        req.body.minStock !== undefined
+          ? Number(req.body.minStock)
+          : oldProduct.minStock,
+      currentStock:
+        req.body.currentStock !== undefined
+          ? Number(req.body.currentStock)
+          : oldProduct.currentStock,
+      firstOrderDate: req.body.firstOrderDate || oldProduct.firstOrderDate,
+      lastOrderDate: req.body.lastOrderDate || oldProduct.lastOrderDate,
+      length:
+        req.body.length !== undefined
+          ? Number(req.body.length)
+          : oldProduct.length,
+      width:
+        req.body.width !== undefined
+          ? Number(req.body.width)
+          : oldProduct.width,
+      height:
+        req.body.height !== undefined
+          ? Number(req.body.height)
+          : oldProduct.height,
+      weight:
+        req.body.weight !== undefined
+          ? Number(req.body.weight)
+          : oldProduct.weight,
+      volume:
+        req.body.volume !== undefined
+          ? Number(req.body.volume)
+          : oldProduct.volume,
+      averagePurchasePrice:
+        req.body.averagePurchasePrice !== undefined
+          ? Number(req.body.averagePurchasePrice)
+          : oldProduct.averagePurchasePrice,
       defaultMarkups: {
-        markup1: Number(req.body["defaultMarkups.markup1"]) || 0,
-        markup2: Number(req.body["defaultMarkups.markup2"]) || 0,
-        markup3: Number(req.body["defaultMarkups.markup3"]) || 0,
+        markup1:
+          req.body["defaultMarkups.markup1"] !== undefined
+            ? Number(req.body["defaultMarkups.markup1"])
+            : oldProduct.defaultMarkups.markup1,
+        markup2:
+          req.body["defaultMarkups.markup2"] !== undefined
+            ? Number(req.body["defaultMarkups.markup2"])
+            : oldProduct.defaultMarkups.markup2,
+        markup3:
+          req.body["defaultMarkups.markup3"] !== undefined
+            ? Number(req.body["defaultMarkups.markup3"])
+            : oldProduct.defaultMarkups.markup3,
       },
-      clientMarkups: req.body.clientMarkups,
+      clientMarkups: req.body.clientMarkups || oldProduct.clientMarkups,
     };
 
+    // Gestionează imaginile, dacă sunt furnizate
     if (req.files && req.files.length > 0) {
-      // Similar: aici poți procesa actualizarea imaginilor
       productData.image = "https://via.placeholder.com/150";
     }
 
-    const updatedProduct = await updateProduct(req.params.id, productData);
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $set: productData },
+      { new: true }
+    );
     if (!updatedProduct) {
       return res.status(404).json({ msg: "Product not found or not updated" });
     }
