@@ -80,26 +80,67 @@ export async function updateProductController(req, res) {
       return res.status(404).json({ msg: "Product not found" });
     }
 
+    // Obține noile valori pentru averagePurchasePrice și markups
+    const averagePurchasePrice =
+      req.body.averagePurchasePrice !== undefined
+        ? Number(req.body.averagePurchasePrice)
+        : oldProduct.averagePurchasePrice;
+
+    const markup1 =
+      req.body["defaultMarkups.markup1"] !== undefined
+        ? Number(req.body["defaultMarkups.markup1"])
+        : oldProduct.defaultMarkups.markup1;
+    const markup2 =
+      req.body["defaultMarkups.markup2"] !== undefined
+        ? Number(req.body["defaultMarkups.markup2"])
+        : oldProduct.defaultMarkups.markup2;
+    const markup3 =
+      req.body["defaultMarkups.markup3"] !== undefined
+        ? Number(req.body["defaultMarkups.markup3"])
+        : oldProduct.defaultMarkups.markup3;
+
+    // Recalculează prețurile de vânzare pe baza valorilor obținute
+    const salesPrice = {
+      price1: parseFloat(
+        (averagePurchasePrice * (1 + markup1 / 100)).toFixed(2)
+      ),
+      price2: parseFloat(
+        (averagePurchasePrice * (1 + markup2 / 100)).toFixed(2)
+      ),
+      price3: parseFloat(
+        (averagePurchasePrice * (1 + markup3 / 100)).toFixed(2)
+      ),
+    };
+
+    // Pregătește actualizarea pentru câmpul packaging
+    const packaging = {
+      itemsPerBox:
+        req.body["packaging.itemsPerBox"] !== undefined
+          ? Number(req.body["packaging.itemsPerBox"])
+          : oldProduct.packaging.itemsPerBox,
+      boxesPerPallet:
+        req.body["packaging.boxesPerPallet"] !== undefined
+          ? Number(req.body["packaging.boxesPerPallet"])
+          : oldProduct.packaging.boxesPerPallet,
+      itemsPerPallet:
+        req.body["packaging.itemsPerPallet"] !== undefined
+          ? Number(req.body["packaging.itemsPerPallet"])
+          : oldProduct.packaging.itemsPerPallet,
+      maxPalletsPerTruck:
+        req.body["packaging.maxPalletsPerTruck"] !== undefined
+          ? Number(req.body["packaging.maxPalletsPerTruck"])
+          : oldProduct.packaging.maxPalletsPerTruck,
+    };
+
+    // Construiește obiectul de update pentru produs
     const productData = {
       name: req.body.name || oldProduct.name,
       barCode: req.body.barCode || oldProduct.barCode,
       description: req.body.description || oldProduct.description,
       mainSupplier: req.body.mainSupplier || oldProduct.mainSupplier,
       category: req.body.category || oldProduct.category,
-      salesPrice: {
-        price1:
-          req.body["salesPrice.price1"] !== undefined
-            ? Number(req.body["salesPrice.price1"])
-            : oldProduct.salesPrice.price1,
-        price2:
-          req.body["salesPrice.price2"] !== undefined
-            ? Number(req.body["salesPrice.price2"])
-            : oldProduct.salesPrice.price2,
-        price3:
-          req.body["salesPrice.price3"] !== undefined
-            ? Number(req.body["salesPrice.price3"])
-            : oldProduct.salesPrice.price3,
-      },
+      // Setează prețurile de vânzare calculate
+      salesPrice: salesPrice,
       minStock:
         req.body.minStock !== undefined
           ? Number(req.body.minStock)
@@ -130,25 +171,14 @@ export async function updateProductController(req, res) {
         req.body.volume !== undefined
           ? Number(req.body.volume)
           : oldProduct.volume,
-      averagePurchasePrice:
-        req.body.averagePurchasePrice !== undefined
-          ? Number(req.body.averagePurchasePrice)
-          : oldProduct.averagePurchasePrice,
+      averagePurchasePrice: averagePurchasePrice,
       defaultMarkups: {
-        markup1:
-          req.body["defaultMarkups.markup1"] !== undefined
-            ? Number(req.body["defaultMarkups.markup1"])
-            : oldProduct.defaultMarkups.markup1,
-        markup2:
-          req.body["defaultMarkups.markup2"] !== undefined
-            ? Number(req.body["defaultMarkups.markup2"])
-            : oldProduct.defaultMarkups.markup2,
-        markup3:
-          req.body["defaultMarkups.markup3"] !== undefined
-            ? Number(req.body["defaultMarkups.markup3"])
-            : oldProduct.defaultMarkups.markup3,
+        markup1: markup1,
+        markup2: markup2,
+        markup3: markup3,
       },
       clientMarkups: req.body.clientMarkups || oldProduct.clientMarkups,
+      packaging: packaging, // Actualizează câmpul packaging
     };
 
     // Gestionează imaginile, dacă sunt furnizate
