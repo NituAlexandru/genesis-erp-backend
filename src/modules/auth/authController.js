@@ -50,14 +50,18 @@ export const login = async (req, res) => {
         permissions: user.role ? user.role.permissions : [],
       },
       process.env.JWT_SECRET,
-      { expiresIn: "10h" }
+      { expiresIn: "1h" }
     );
 
     // Setăm tokenul într-un cookie HTTP-only
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "lax", // Ajustează pentru producție
-      secure: false, // Pe localhost
+      sameSite: "lax",
+      secure: false,
+      // httpOnly: true,
+      // secure: process.env.NODE_ENV === "production", // true în producție
+      // sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      // domain: process.env.COOKIE_DOMAIN, // opțional: setarea domeniului pentru a restricționa cookie-urile
     });
     res.json({
       token,
