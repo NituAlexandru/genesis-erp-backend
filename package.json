@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node --loader ts-node/esm init.js && node src/server.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -12,6 +12,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "express-validator": "^7.2.1",
     "genesis-erp-backend": "file:",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.2.2",

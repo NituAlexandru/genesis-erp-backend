@@ -1,4 +1,3 @@
-// src/modules/roles/role.controller.js
 import Role from "./roleModel.js";
 
 // CREATE
