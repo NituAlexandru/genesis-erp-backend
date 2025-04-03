@@ -41,6 +41,33 @@ const productSchema = new mongoose.Schema(
     height: { type: Number, default: 0 },
     weight: { type: Number, default: 0 },
     volume: { type: Number, default: 0 },
+    // packaging: {
+    //   // Dropdown 1: Primary Sales Method – modul de vânzare inițial
+    //   primarySalesMethod: {
+    //     type: String,
+    //     enum: ["piece", "kg", "liter", "sack", "box", "tube", "pallet"],
+    //     required: true,
+    //   },
+    //   // Dropdown 2: Secondary Sales Method – pentru conversii suplimentare
+    //   secondarySalesMethod: {
+    //     type: String,
+    //     enum: ["pallet", "cubicMeter", "box", "pack"],
+    //     default: null,
+    //   },
+    //   // Dropdown 3: Truck Sales Method – modul de transport/vehicul
+    //   truckSalesMethod: {
+    //     type: String,
+    //     enum: ["pallet", "truck", "smallMachine"],
+    //     default: null,
+    //   },
+    //   // Câmpuri pentru factorii de conversie:
+    //   // De exemplu, dacă produsul se vinde la "piece", câte bucăți intră într-un palet (sau într-un metru cub)
+    //   primaryToSecondary: { type: Number, default: 0 },
+    //   // De exemplu, câte bucăți pot intra pe un camion
+    //   primaryToTruck: { type: Number, default: 0 },
+    //   // De exemplu, câte unități secundare (paleti sau m³) intră pe camion
+    //   secondaryToTruck: { type: Number, default: 0 },
+    // },
     packaging: {
       itemsPerBox: { type: Number, default: 0 },
       boxesPerPallet: { type: Number, default: 0 },
